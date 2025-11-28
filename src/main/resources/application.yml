@@ -1,5 +1,11 @@
-server:
-  port: 8090
+spring:
+  profiles:
+    active: prod   # ⭐ Docker run에서 설정 안 해도 prod 실행됨
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 mybatis:
   mapper-locations: mybatis/mapper/*.xml
@@ -13,11 +19,14 @@ springdoc:
     - group: all
       paths-to-match: /**
 
----
+logging:
+  level:
+    root: INFO
+    com.multi.restproduct: DEBUG
+    org.springframework.security: DEBUG
 
-###############################################################
-#  🚀 LOCAL PROFILE (LOCAL 개발 환경)
-###############################################################
+# --- LOCAL PROFILE (실행 안 됨, 참고용) ---
+---
 spring:
   config:
     activate:
@@ -29,58 +38,25 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
 
-  cloud:
-    aws:
-      credentials:
-        access-key: ${AWS_ACCESS_KEY}
-        secret-key: ${AWS_SECRET_KEY}
-      S3:
-        bucket: sample-s3-multi66614
-        base-url: https://sample-s3-multi66614.s3.eu-west-3.amazonaws.com/products/
-      region:
-        static: eu-west-3
-      stack:
-        auto: false
-
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
-
-logging:
-  level:
-    root: INFO
-    com.multi.restproduct: DEBUG
-    org.springframework.security: DEBUG
-    jdbc:
-      resultset: OFF
-      audit: OFF
-      connection: OFF
-
-
 ---
-
-###############################################################
-#  🚀 PROD PROFILE (운영 / AWS EC2 / Docker 환경)
-###############################################################
+# --- PROD PROFILE (Jenkins sed 로 치환됨) ---
 spring:
   config:
     activate:
       on-profile: prod
 
   datasource:
-    url: ${DB_PROD_URL}
-    username: ${DB_PROD_USER}
+    url: ${DB_PROD_URL}        # sed로 실제 URL 로 치환
+    username: ${DB_PROD_USER}  # sed로 치환
     password: ${DB_PROD_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   cloud:
     aws:
       credentials:
-        access-key: ${AWS_ACCESS_KEY}
-        secret-key: ${AWS_SECRET_KEY}
-      S3:
+        access-key: ${AWS_ACCESS_KEY}   # sed로 치환
+        secret-key: ${AWS_SECRET_KEY}   # sed로 치환
+      s3:
         bucket: sample-s3-multi66614
         base-url: https://sample-s3-multi66614.s3.eu-west-3.amazonaws.com/products/
       region:
@@ -88,17 +64,6 @@ spring:
       stack:
         auto: false
 
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
-
-logging:
-  level:
-    root: INFO
-    com.multi.restproduct: INFO
-
 jwt:
-  issuer: ${jwt.issuer}
-  secret: ${jwt.secret}
+  issuer: ${JWT_ISSUER}     # sed로 치환됨
+  secret: ${JWT_SECRET}
