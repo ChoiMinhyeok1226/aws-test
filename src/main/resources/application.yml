@@ -1,11 +1,14 @@
 spring:
   profiles:
-    active: prod   # ⭐ Docker run에서 설정 안 해도 prod 실행됨
+    active: prod
   servlet:
     multipart:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
+
+server:
+  port: 8090   # ⭐ 공통 포트 설정 (local/prod 모두 적용)
 
 mybatis:
   mapper-locations: mybatis/mapper/*.xml
@@ -25,7 +28,6 @@ logging:
     com.multi.restproduct: DEBUG
     org.springframework.security: DEBUG
 
-# --- LOCAL PROFILE (실행 안 됨, 참고용) ---
 ---
 spring:
   config:
@@ -39,23 +41,22 @@ spring:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
 
 ---
-# --- PROD PROFILE (Jenkins sed 로 치환됨) ---
 spring:
   config:
     activate:
       on-profile: prod
 
   datasource:
-    url: ${DB_PROD_URL}        # sed로 실제 URL 로 치환
-    username: ${DB_PROD_USER}  # sed로 치환
+    url: ${DB_PROD_URL}
+    username: ${DB_PROD_USER}
     password: ${DB_PROD_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   cloud:
     aws:
       credentials:
-        access-key: ${AWS_ACCESS_KEY}   # sed로 치환
-        secret-key: ${AWS_SECRET_KEY}   # sed로 치환
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
       s3:
         bucket: sample-s3-multi66614
         base-url: https://sample-s3-multi66614.s3.eu-west-3.amazonaws.com/products/
@@ -65,5 +66,5 @@ spring:
         auto: false
 
 jwt:
-  issuer: ${JWT_ISSUER}     # sed로 치환됨
+  issuer: ${JWT_ISSUER}
   secret: ${JWT_SECRET}
