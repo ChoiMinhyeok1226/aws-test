@@ -1,58 +1,47 @@
 server:
   port: 8090
 
-spring:
-  profiles:
-    active: local
-
-#주석추가
-
 mybatis:
-  # mapper.xml location Setting
   mapper-locations: mybatis/mapper/*.xml
-  # alias Setting
   type-aliases-package: com.multi.restproduct.**.dto
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # SQL ?? ??? ?? ??
-
-#
-#image:
-#  add-resource-locations: /productimgs/
-#  add-resource-handler: /productimgs/**
-#  image-dir: /productimgs/
-#  image-url: http://localhost:8090/productimgs/
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 springdoc:
   group-configs:
     - group: all
       paths-to-match: /**
+
 ---
 
+###############################################################
+#  🚀 LOCAL PROFILE (LOCAL 개발 환경)
+###############################################################
 spring:
-  profiles:
-    active: local
-  cloud:
-    aws:
-      credentials: # IAM으로 생성한 시크릿키 정보를 입력
-        access-key: ${AWS_ACCESS_KEY}
-        secret-key: ${AWS_SECRET_KEY}
-      S3:
-        bucket: sample-s3-multi66614    #${S3_BUCKET_NAME} # bucket 이름
-        base-url: https://sample-s3-multi66614.s3.eu-west-3.amazonaws.com/products/  #url복사해서붙이기
-      region:
-        static: eu-west-3  # bucket이 위치한 AWS 리전을 설정
-      stack:
-        auto: false # 자동 스택 생성 기능 사용여부를 설정 (자동 스택 생성: 애플리케이션이 실행, 배포될 때 인프라 리소스를 자동으로 생성하고 설정하는 것)
-#spring:
-#  config:
-#    activate:
-#      on-profile: local, test
+  config:
+    activate:
+      on-profile: local
+
   datasource:
     url: jdbc:log4jdbc:mysql://localhost:13306/scott
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      S3:
+        bucket: sample-s3-multi66614
+        base-url: https://sample-s3-multi66614.s3.eu-west-3.amazonaws.com/products/
+      region:
+        static: eu-west-3
+      stack:
+        auto: false
+
   servlet:
     multipart:
       enabled: true
@@ -64,45 +53,46 @@ logging:
     root: INFO
     com.multi.restproduct: DEBUG
     org.springframework.security: DEBUG
-
-    # JDBC 실행 로그 너무길어서 안보고싶으면끔
     jdbc:
       resultset: OFF
       audit: OFF
       connection: OFF
 
+
 ---
 
-
+###############################################################
+#  🚀 PROD PROFILE (운영 / AWS EC2 / Docker 환경)
+###############################################################
 spring:
   config:
     activate:
       on-profile: prod
-  cloud:
-    aws:
-      credentials: # IAM으로 생성한 시크릿키 정보를 입력
-        access-key: ${AWS_ACCESS_KEY}
-        secret-key: ${AWS_SECRET_KEY}
-      S3:
-        bucket: sample-s3-multi66614    #${S3_BUCKET_NAME} # bucket 이름
-        base-url: https://sample-s3-multi66614.s3.eu-west-3.amazonaws.com/products/  #url복사해서붙이기
-      region:
-        static: eu-west-3  # bucket이 위치한 AWS 리전을 설정
-      stack:
-        auto: false # 자동 스택 생성 기능 사용여부를 설정 (자동 스택 생성: 애플리케이션이 실행, 배포될 때 인프라 리소스를 자동으로 생성하고 설정하는 것)
-
 
   datasource:
     url: ${DB_PROD_URL}
     username: ${DB_PROD_USER}
     password: ${DB_PROD_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      S3:
+        bucket: sample-s3-multi66614
+        base-url: https://sample-s3-multi66614.s3.eu-west-3.amazonaws.com/products/
+      region:
+        static: eu-west-3
+      stack:
+        auto: false
+
   servlet:
     multipart:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
-
 
 logging:
   level:
