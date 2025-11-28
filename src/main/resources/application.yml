@@ -78,6 +78,20 @@ spring:
   config:
     activate:
       on-profile: prod
+  cloud:
+    aws:
+      credentials: # IAM으로 생성한 시크릿키 정보를 입력
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      S3:
+        bucket: sample-s3-multi66614    #${S3_BUCKET_NAME} # bucket 이름
+        base-url: https://sample-s3-multi66614.s3.eu-west-3.amazonaws.com/products/  #url복사해서붙이기
+      region:
+        static: eu-west-3  # bucket이 위치한 AWS 리전을 설정
+      stack:
+        auto: false # 자동 스택 생성 기능 사용여부를 설정 (자동 스택 생성: 애플리케이션이 실행, 배포될 때 인프라 리소스를 자동으로 생성하고 설정하는 것)
+
+
   datasource:
     url: ${DB_PROD_URL}
     username: ${DB_PROD_USER}
