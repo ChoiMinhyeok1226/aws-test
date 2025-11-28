@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.multi.restproduct.review.model.dao.ReviewMapper">
+
+    <select id="selectReviewTotal" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM review r
+
+    </select>
+
+    <select id="selectReviewListWithPaging" resultType="ReviewDto">
+        SELECT r.review_code    as reviewCode,
+               p.id             as productCode,
+               p.name           as productName,
+               r.review_title   as reviewTitle,
+               r.review_content as reviewContent,
+               r.created_date   as createdDate,
+               r.modified_date  as modifiedPerson,
+               m.no             as memberCode,
+               m.name           as memberName
+        FROM review r
+                 JOIN member m ON r.member_code = m.id
+                 JOIN product p ON r.product_code = p.id
+        ORDER BY r.review_code DESC
+            LIMIT #{startRow}, #{limit}
+
+    </select>
+
+    <insert id="insertReview" parameterType="ReviewDto">
+        INSERT INTO review
+        (
+            product_code,
+            member_code,
+            review_title,
+            review_content,
+            created_person,
+            modified_person
+        )
+        VALUES
+            (
+                #{productCode},
+                #{memberCode},
+                #{reviewTitle},
+                #{reviewContent},
+                #{memberCode},
+                #{memberCode}
+            )
+    </insert>
+
+    <update id="updateReview" parameterType="ReviewDto">
+        UPDATE review
+        SET
+            review_title = #{reviewTitle},
+            review_content = #{reviewContent}
+        WHERE review_code = #{reviewCode}
+    </update>
+
+    <select id="findReviewByCode" resultType="ReviewDto">
+        SELECT r.review_code    as reviewCode,
+               p.id             as productCode,
+               p.name           as productName,
+               r.review_title   as reviewTitle,
+               r.review_content as reviewContent,
+               r.created_date   as createdDate,
+               r.modified_date as modifiedPerson,
+               m.no             as memberCode,
+               m.name           as memberName
+        FROM review r
+                 JOIN member m ON r.member_code = m.id
+                 JOIN product p ON r.product_code = p.id
+        WHERE r.review_code = #{reviewCode}
+        ORDER BY r.review_code DESC
+    </select>
+
+    <delete id="deleteReviewByCode" parameterType="int">
+        DELETE
+        FROM review
+        WHERE review_code = #{code}
+    </delete>
+
+
+    <select id="selectSearchProductList" resultType="ReviewDto">
+        SELECT
+            p.id AS productCode,
+            p.name AS productName,
+            p.price AS productPrice,
+            p.content AS productDescription,
+            p.status AS productOrderable,
+            p.product_image_url AS productImageUrl,
+            c.id AS companyId,
+            c.name AS companyName
+        FROM product p
+                 JOIN company c ON p.company_id = c.id
+        WHERE p.name LIKE CONCAT('%', #{search}, '%')
+          AND p.status = 'y'
+        ORDER BY p.id DESC
+    </select>
+
+</mapper>
+

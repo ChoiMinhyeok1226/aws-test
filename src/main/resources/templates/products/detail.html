@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>상품 상세</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body>
+<div class="header">
+    <th:block th:replace="~{common/header :: header}"/>
+</div>
+<div class="container">
+    <h2 id="productName"></h2>
+    <img id="productImage" alt="상품 이미지" style="width: 300px; height: auto;">
+    <p id="productDescription"></p>
+    <p><strong>가격:</strong> <span id="productPrice"></span>원</p>
+
+    <div style="margin-top: 20px;">
+        <button id="updateButton">수정</button>
+    </div>
+
+<!-- 홈으로 돌아가기 -->
+<a href="/main" style="display: inline-block; margin-top: 20px;">홈으로 돌아가기</a>
+</div>
+
+<div class="footer">
+    <th:block th:replace="~{common/footer :: footer}"/>
+</div>
+<script>
+    // Thymeleaf로 productCode를 전달받아 JavaScript 변수에 설정
+    const productCode = [[${productCode}]]; // Thymeleaf로 데이터 바인딩
+
+    async function loadProductDetail() {
+        try {
+            // API 호출
+            const response = await fetch(`http://localhost:8090/api/v1/product/${productCode}`);
+            const result = await response.json();
+
+            if (result.status === 200 && result.data) {
+                const product = result.data;
+
+                // HTML 요소에 데이터 설정
+                document.getElementById('productName').textContent = product.productName;
+                document.getElementById('productImage').src = product.productImageUrl || '/path/to/default-image.jpg'; // 이미지가 없을 경우 기본 이미지 설정
+                document.getElementById('productDescription').textContent = product.productDescription;
+                document.getElementById('productPrice').textContent = product.productPrice.toLocaleString();
+            } else {
+                console.error('Failed to load product detail:', result);
+                alert('상품 정보를 불러오는 데 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error loading product detail:', error);
+            alert('상품 정보를 불러오는 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 수정 버튼 클릭 시 화면 이동
+    document.getElementById('updateButton').onclick = () => {
+        location.href = `/products/update/${productCode}`;
+    };
+
+    // DOMContentLoaded 이벤트에서 loadProductDetail 실행
+    document.addEventListener('DOMContentLoaded', loadProductDetail);
+</script>
+</body>
+</html>

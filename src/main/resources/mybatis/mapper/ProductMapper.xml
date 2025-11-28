@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.multi.restproduct.product.model.dao.ProductMapper">
+
+    <select id="selectProductTotal" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM product p
+                 JOIN company c ON p.company_id = c.id
+        WHERE p.status = 'y'
+
+    </select>
+
+    <select id="selectProductListWithPaging" resultType="ProductAllDto">
+        SELECT
+            p.id AS productCode,
+            p.name AS productName,
+            p.price AS productPrice,
+            p.content AS productDescription,
+            p.status AS productOrderable,
+            p.product_image_url AS productImageUrl,
+            c.id AS companyId,
+            c.name AS companyName
+        FROM product p
+                 JOIN company c ON p.company_id = c.id
+        WHERE p.status = 'y'
+        ORDER BY p.id DESC
+            LIMIT #{startRow}, #{limit}
+
+    </select>
+
+    <insert id="insertProduct" parameterType="RequestProductDto">
+        INSERT INTO product
+        (
+            name,
+            price,
+            content,
+            product_image_url,
+            company_id,
+            status
+        )
+        VALUES
+            (
+                #{productName},
+                #{productPrice},
+                #{productDescription},
+                #{productImageUrl},
+                #{companyId},
+                #{productOrderable}
+            )
+    </insert>
+
+    <update id="updateProduct" parameterType="RequestProductDto">
+        UPDATE product
+        SET
+            name = #{productName},
+            price = #{productPrice},
+            content = #{productDescription},
+            product_image_url = #{productImageUrl},
+            company_id = #{companyId},
+            status = #{productOrderable}
+        WHERE id = #{productCode}
+    </update>
+
+    <select id="findProductbyId" resultType="ProductAllDto">
+        SELECT
+            p.id AS productCode,
+            p.name AS productName,
+            p.price AS productPrice,
+            p.content AS productDescription,
+            p.status AS productOrderable,
+            p.product_image_url AS productImageUrl,
+            c.id AS companyId,
+            c.name AS companyName
+        FROM product p
+                 JOIN company c ON p.company_id = c.id
+        WHERE p.id = #{productCode}
+          AND p.status = 'y'
+        ORDER BY p.id DESC
+    </select>
+
+    <select id="selectProductTotalForAdmin" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM product p
+                 JOIN company c ON p.company_id = c.id
+    </select>
+
+    <select id="selectProductListWithPagingForAdmin" resultType="ProductAllDto">
+        SELECT
+            p.id AS productCode,
+            p.name AS productName,
+            p.price AS productPrice,
+            p.content AS productDescription,
+            p.status AS productOrderable,
+            p.product_image_url AS productImageUrl,
+            c.id AS companyId,
+            c.name AS companyName
+        FROM product p
+                 JOIN company c ON p.company_id = c.id
+        ORDER BY p.id DESC
+            LIMIT #{startRow}, #{limit}
+
+    </select>
+
+
+
+    <select id="findProductbyIdForAdmin" resultType="ProductAllDto">
+        SELECT
+            p.id AS productCode,
+            p.name AS productName,
+            p.price AS productPrice,
+            p.content AS productDescription,
+            p.status AS productOrderable,
+            p.product_image_url AS productImageUrl,
+            c.id AS companyId,
+            c.name AS companyName
+        FROM product p
+                 JOIN company c ON p.company_id = c.id
+        WHERE p.id = #{productCode}
+        ORDER BY p.id DESC
+    </select>
+
+
+    <select id="selectSearchProductList" resultType="ProductAllDto">
+        SELECT
+            p.id AS productCode,
+            p.name AS productName,
+            p.price AS productPrice,
+            p.content AS productDescription,
+            p.status AS productOrderable,
+            p.product_image_url AS productImageUrl,
+            c.id AS companyId,
+            c.name AS companyName
+        FROM product p
+                 JOIN company c ON p.company_id = c.id
+        WHERE p.name LIKE CONCAT('%', #{search}, '%')
+          AND p.status = 'y'
+        ORDER BY p.id DESC
+    </select>
+
+</mapper>
+

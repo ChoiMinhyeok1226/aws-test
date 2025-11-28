@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>상품 수정</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body>
+<div class="header">
+    <th:block th:replace="~{common/header :: header}"/>
+</div>
+<div class="container">
+    <h2>상품 수정</h2>
+    <form id="updateForm" enctype="multipart/form-data">
+        <!-- 상품 코드 -->
+        <input type="hidden" id="productCode" name="productCode" th:value="${productCode}">
+        <input type="hidden" id="companyId" name="companyId">
+        <input type="hidden" id="productImageUrl" name="productImageUrl"> <!-- 파일 이름을 담음 -->
+
+        <!-- 상품명 -->
+        <div>
+            <label for="productName">상품명:</label>
+            <input type="text" id="productName" name="productName" required>
+        </div>
+
+        <!-- 가격 -->
+        <div>
+            <label for="productPrice">가격:</label>
+            <input type="number" id="productPrice" name="productPrice" required>
+        </div>
+
+        <!-- 설명 -->
+        <div>
+            <label for="productDescription">설명:</label>
+            <textarea id="productDescription" name="productDescription" required></textarea>
+        </div>
+
+        <!-- 이미지 -->
+        <div>
+            <label for="productImage">이미지:</label>
+            <img id="currentImage" alt="현재 이미지"
+                 style="width: 100px; height: auto; display: block; margin-bottom: 10px;">
+            <input type="file" id="productImage" name="productImage" accept="image/*">
+        </div>
+        <!-- 활성화 여부 -->
+        <div>
+            <label for="productOrderable">활성화 여부:</label>
+            <select id="productOrderable" name="productOrderable" required>
+                <option value="y">활성화</option>
+                <option value="n">비활성화</option>
+            </select>
+        </div>
+        <!-- 수정 버튼 -->
+        <button type="submit">수정</button>
+    </form>
+
+    <!-- 홈으로 돌아가기 -->
+    <a href="/main" style="display: inline-block; margin-top: 20px;">홈으로 돌아가기</a>
+</div>
+<div class="footer">
+    <th:block th:replace="~{common/footer :: footer}"/>
+</div>
+
+<script>
+    // 수정 화면 초기 데이터 로드
+    async function loadProductDetails() {
+        const productCode = [[${productCode}]];
+        try {
+            const response = await fetch(`http://localhost:8090/api/v1/product/${productCode}`);
+            const result = await response.json();
+
+            if (result.status === 200 && result.data) {
+                const product = result.data;
+
+                // 필드에 초기값 설정
+                document.getElementById('productName').value = product.productName;
+                document.getElementById('productPrice').value = product.productPrice;
+                document.getElementById('productDescription').value = product.productDescription;
+                document.getElementById('companyId').value = product.companyId;
+                document.getElementById('currentImage').src = product.productImageUrl;
+                document.getElementById('productOrderable').value = product.productOrderable || 'n';
+
+                // 기존 파일 이름 설정
+                const fileName = product.productImageUrl.split('/').pop(); // URL에서 파일 이름 추출
+                document.getElementById('productImageUrl').value = fileName;
+            } else {
+                alert('상품 정보를 불러오는 데 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error loading product details:', error);
+            alert('상품 정보를 불러오는 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 이미지 파일 선택 시 미리보기 처리
+    document.getElementById('productImage').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('currentImage').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // 파일 이름을 `productImageUrl` 필드에 설정
+            document.getElementById('productImageUrl').value = file.name;
+        }
+    });
+
+    // 폼 제출 처리
+    document.getElementById('updateForm').onsubmit = async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+        const fileInput = document.getElementById('productImage');
+        if (!fileInput.files || fileInput.files.length === 0) {
+            formData.delete('productImage');
+        }
+
+        // 디버깅용 FormData 출력
+        for (const [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8090/api/v1/products-management/products`, {
+                method: 'PUT',
+                body: formData,
+            });
+
+            if (response.ok) {
+                alert('상품이 수정되었습니다.');
+                location.href = '/products/list';
+            } else {
+                alert('상품 수정에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error updating product:', error);
+            alert('상품 수정 중 오류가 발생했습니다.');
+        }
+    };
+
+    // 페이지 로드 시 초기 데이터 로드
+    document.addEventListener('DOMContentLoaded', loadProductDetails);
+</script>
+</body>
+</html>
