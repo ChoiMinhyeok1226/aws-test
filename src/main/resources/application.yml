@@ -1,3 +1,6 @@
+server:
+  port: 8090
+
 spring:
   profiles:
     active: prod
@@ -6,9 +9,6 @@ spring:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
-
-server:
-  port: 8090   # ⭐ 공통 포트 설정 (local/prod 모두 적용)
 
 mybatis:
   mapper-locations: mybatis/mapper/*.xml
