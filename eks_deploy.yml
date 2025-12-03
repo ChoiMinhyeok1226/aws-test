@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crudpro
+  labels:
+    app: crudpro
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: crudpro
+  template:
+    metadata:
+      labels:
+        app: crudpro
+    spec:
+      containers:
+        - name: crudapp
+          image: ${ECR_REPO_URI}:${BUILD_NUMBER}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          ports:
+            - containerPort: 8090  # 컨테이너 내부 포트 (8090)
+          imagePullPolicy: Always  # 항상 최신 이미지 사용
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-boot-service
+  labels:
+    app: crudpro
+spec:
+  selector:
+    app: crudpro
+  ports:
+    - protocol: TCP
+      port: 80           # 외부에서 접근하는 포트
+      targetPort: 8090   # Spring Boot 컨테이너 포트
+  type: LoadBalancer     # 로드 밸런서를 통해 외부 접근 허용
+
